@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   userEvent,
@@ -42,8 +43,8 @@ describe("Login Screen", () => {
     sut.getByText("Forgot Password?");
   });
   it("Should block inputs when trying to sign in", async () => {
-    const { sut } = makeSut();
     jest.useFakeTimers();
+    const { sut } = makeSut();
 
     mockedLogin.mockImplementation(
       async () => new Promise((res) => setTimeout(res, 1500))
@@ -60,7 +61,7 @@ describe("Login Screen", () => {
     expect(sut.getByPlaceholderText("******")).toBeDisabled();
     expect(loginButton).toBeDisabled();
 
-    jest.runAllTimers();
+    act(() => jest.runAllTimers());
 
     await waitFor(() =>
       expect(sut.queryByTestId("sign-in-button")).not.toBeDisabled()
