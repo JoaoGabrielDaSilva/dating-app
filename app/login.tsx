@@ -12,11 +12,24 @@ import colors from "tailwindcss/colors";
 import { Button } from "../src/components/button";
 import { useRouter } from "expo-router";
 import { login } from "../src/services/auth";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  email: z
+    .string({ required_error: "Informe um e-mail" })
+    .email({ message: "Informe um e-mail válido" }),
+  password: z
+    .string({ required_error: "Informe uma senha" })
+    .min(6, { message: "A senha deve conter pelo menos 6 caractéres" }),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export default function Login() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
+  const { control, handleSubmit } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
   });
 
   const [secureTextEntry, setSecureTextEntry] = useState(true);
@@ -24,12 +37,9 @@ export default function Login() {
 
   const router = useRouter();
 
-  const handleChangeFormText = (key: keyof typeof form, value: string) =>
-    setForm((state) => ({ ...state, [key]: value }));
-
-  const onSubmit = async () => {
+  const onSubmit = async (data: FormData) => {
     setIsLoading(true);
-    await login(form);
+    await login(data);
     setIsLoading(false);
   };
 
@@ -50,21 +60,19 @@ export default function Login() {
 
           <View className="mx-4 mt-10">
             <TextInput
+              name="email"
+              control={control}
               placeholder="example@gmail.com"
               label="E-mail"
-              value={form.email}
-              onChangeText={(value) => handleChangeFormText("email", value)}
               keyboardType="email-address"
               editable={!isLoading}
             />
             <View className="mt-4">
               <TextInput
+                name="password"
+                control={control}
                 placeholder="******"
                 label="Password"
-                value={form.password}
-                onChangeText={(value) =>
-                  handleChangeFormText("password", value)
-                }
                 keyboardType="visible-password"
                 rightComponent={
                   <Pressable
@@ -92,23 +100,23 @@ export default function Login() {
           <Button
             testID="sign-in-button"
             className="m-4 mt-6"
-            onPress={onSubmit}
+            onPress={handleSubmit(onSubmit)}
             isLoading={isLoading}
           >
             Sign In
           </Button>
-          <View>
-            <Text className="text-center mt-4 text-md text-gray-500">
+          <View className="flex-row items-center mt-4 self-center">
+            <Text className="text-center text-md text-gray-500">
               Don't have an account?{" "}
-              <Pressable onPress={() => router.push("sign-up")}>
-                <Text
-                  className="text-primary mt-4 text-right underline"
-                  testID="sign-up-button"
-                >
-                  Sign Up
-                </Text>
-              </Pressable>
             </Text>
+            <Pressable onPress={() => router.push("sign-up")}>
+              <Text
+                className="text-primary text-right underline"
+                testID="sign-up-button"
+              >
+                Sign Up
+              </Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
