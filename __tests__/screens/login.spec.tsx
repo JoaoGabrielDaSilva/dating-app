@@ -13,6 +13,7 @@ import { makeUseRouterMock } from "../helpers/mocks/make-useRouter-mock";
 
 jest.mock("../../src/services/auth/login");
 jest.mock("expo-router");
+jest.useFakeTimers();
 
 const mockedLogin = login as jest.MockedFunction<typeof login>;
 const useRouterMock = useRouter as jest.MockedFunction<typeof useRouter>;
@@ -39,23 +40,35 @@ describe("Login Screen", () => {
     sut.getByText("Password");
     sut.getByPlaceholderText("example@gmail.com");
     sut.getByPlaceholderText("******");
-    sut.getByText("Don't have an account? Sign Up");
+    sut.getByText("Don't have an account? ");
+    sut.getByText("Sign Up");
     sut.getByText("Forgot Password?");
   });
   it("Should block inputs when trying to sign in", async () => {
-    jest.useFakeTimers();
     const { sut } = makeSut();
 
     mockedLogin.mockImplementation(
       async () => new Promise((res) => setTimeout(res, 1500))
     );
 
+    const emailInput = sut.getByPlaceholderText("example@gmail.com");
+    const passwordInput = sut.getByPlaceholderText("******");
+
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+
+    const user = userEvent.setup();
+
+    user.type(emailInput, email);
+
+    await waitFor(() => user.type(passwordInput, password));
+
     const loginButton = sut.getByTestId("sign-in-button");
 
-    fireEvent(loginButton, "press");
+    user.press(loginButton);
 
     await waitFor(async () =>
-      expect(sut.getByPlaceholderText("example@gmail.com")).toBeDisabled()
+      expect(sut.queryByPlaceholderText("example@gmail.com")).toBeDisabled()
     );
 
     expect(sut.getByPlaceholderText("******")).toBeDisabled();
@@ -116,12 +129,15 @@ describe("Login Screen", () => {
     const email = faker.internet.email();
     const password = faker.internet.password();
 
-    fireEvent(emailInput, "changeText", email);
-    fireEvent(passwordInput, "changeText", password);
+    const user = userEvent.setup();
+
+    user.type(emailInput, email);
+    await waitFor(() => user.type(passwordInput, password));
 
     const loginButton = sut.getByTestId("sign-in-button");
 
-    fireEvent(loginButton, "press");
+    await waitFor(() => user.press(loginButton));
+
     expect(mockedLogin).toHaveBeenCalledWith({ email, password });
   });
 });

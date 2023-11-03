@@ -7,7 +7,8 @@
   "setupFilesAfterEnv": [
     "<rootDir>/__mocks__/mock-react-native.ts",
     "@testing-library/jest-native/extend-expect",
-    "<rootDir>/__mocks__/jest-native.ts"
+    "<rootDir>/__mocks__/jest-native.ts",
+    "<rootDir>/__mocks__/hook-form.ts"
   ],
   "testPathIgnorePatterns": ["<rootDir>/__tests__/helpers"]
 }
