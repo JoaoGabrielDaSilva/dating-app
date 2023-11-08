@@ -20,9 +20,11 @@ const useRouterMock = useRouter as jest.MockedFunction<typeof useRouter>;
 
 const makeSut = () => {
   const sut = render(<Login />);
+  const user = userEvent.setup();
 
   return {
     sut,
+    user,
   };
 };
 
@@ -45,7 +47,7 @@ describe("Login Screen", () => {
     sut.getByText("Forgot Password?");
   });
   it("Should block inputs when trying to sign in", async () => {
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     mockedLogin.mockImplementation(
       async () => new Promise((res) => setTimeout(res, 1500))
@@ -56,8 +58,6 @@ describe("Login Screen", () => {
 
     const email = faker.internet.email();
     const password = faker.internet.password();
-
-    const user = userEvent.setup();
 
     user.type(emailInput, email);
 
@@ -81,16 +81,18 @@ describe("Login Screen", () => {
     );
   });
   it("Should show/hide password when clicking on eye icon", async () => {
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const eyeIcon = sut.getByTestId("password-eye-icon");
     const passwordInput = sut.getByPlaceholderText("******");
 
-    fireEvent(eyeIcon, "press");
+    await user.press(eyeIcon);
 
-    expect(passwordInput).toHaveProp("secureTextEntry", false);
+    await waitFor(() =>
+      expect(passwordInput).toHaveProp("secureTextEntry", false)
+    );
 
-    fireEvent(eyeIcon, "press");
+    await user.press(eyeIcon);
 
     expect(passwordInput).toHaveProp("secureTextEntry", true);
   });
@@ -99,37 +101,39 @@ describe("Login Screen", () => {
 
     useRouterMock.mockReturnValue(useRouterReturnMock);
 
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const forgotPasswordText = sut.getByText("Forgot Password?");
 
-    fireEvent(forgotPasswordText, "press");
+    await user.press(forgotPasswordText);
 
-    expect(useRouterReturnMock.push).toHaveBeenCalledWith("forgot-password");
+    await waitFor(() =>
+      expect(useRouterReturnMock.push).toHaveBeenCalledWith("forgot-password")
+    );
   });
   it("Should navigate to sign up screen", async () => {
     const useRouterReturnMock = makeUseRouterMock();
 
     useRouterMock.mockReturnValue(useRouterReturnMock);
 
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const signUpText = sut.getByTestId("sign-up-button");
 
-    fireEvent(signUpText, "press");
+    await user.press(signUpText);
 
-    expect(useRouterReturnMock.push).toHaveBeenCalledWith("sign-up");
+    await waitFor(() =>
+      expect(useRouterReturnMock.push).toHaveBeenCalledWith("sign-up")
+    );
   });
   it("Should call login method with the correct parameters", async () => {
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const emailInput = sut.getByPlaceholderText("example@gmail.com");
     const passwordInput = sut.getByPlaceholderText("******");
 
     const email = faker.internet.email();
     const password = faker.internet.password();
-
-    const user = userEvent.setup();
 
     user.type(emailInput, email);
     await waitFor(() => user.type(passwordInput, password));

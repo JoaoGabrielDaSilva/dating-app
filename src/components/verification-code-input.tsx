@@ -11,13 +11,14 @@ export const VerificationCodeInput = ({ control, setFocus }) => {
             control={control}
             render={({ field: { ref, value, onChange } }) => (
               <TextInput
-                className="px-6 py-4 text-lg text-medium border-2 border-transparent focus:border-gray-500 rounded-lg"
+                className="px-5 py-2 pb-4 text-lg border-2 border-transparent focus:border-primary rounded-lg "
                 ref={ref}
                 textAlign="center"
                 keyboardType="number-pad"
                 caretHidden
                 maxLength={1}
                 defaultValue="-"
+                returnKeyType="done"
                 value={value}
                 onKeyPress={(e) => {
                   const value = e.nativeEvent.key;
