@@ -20,9 +20,11 @@ const signUpMock = signUp as jest.MockedFunction<typeof signUp>;
 
 const makeSut = () => {
   const sut = render(<SignUp />);
+  const user = userEvent.setup();
 
   return {
     sut,
+    user,
   };
 };
 
@@ -52,20 +54,25 @@ describe("Sign Up Screen", () => {
   });
 
   it("Should show/hide password when clicking on eye icon", async () => {
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const eyeIcon = sut.getByTestId("password-eye-icon");
     const passwordInput = sut.getByLabelText("password");
     const confirmPasswordInput = sut.getByLabelText("confirmPassword");
 
-    fireEvent(eyeIcon, "press");
+    await user.press(eyeIcon);
 
-    expect(passwordInput).toHaveProp("secureTextEntry", false);
+    await waitFor(() =>
+      expect(passwordInput).toHaveProp("secureTextEntry", false)
+    );
+
     expect(confirmPasswordInput).toHaveProp("secureTextEntry", false);
 
-    fireEvent(eyeIcon, "press");
+    await user.press(eyeIcon);
 
-    expect(passwordInput).toHaveProp("secureTextEntry", true);
+    await waitFor(() =>
+      expect(passwordInput).toHaveProp("secureTextEntry", true)
+    );
     expect(confirmPasswordInput).toHaveProp("secureTextEntry", true);
   });
 
@@ -74,16 +81,18 @@ describe("Sign Up Screen", () => {
 
     useRouterMock.mockReturnValue(useRouterReturnMock);
 
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const signUpText = sut.getByText("Sign In");
 
-    fireEvent(signUpText, "press");
+    await user.press(signUpText);
 
-    expect(useRouterReturnMock.push).toHaveBeenCalledWith("login");
+    await waitFor(() =>
+      expect(useRouterReturnMock.push).toHaveBeenCalledWith("login")
+    );
   });
   it("Should call login method with the correct parameters", async () => {
-    const { sut } = makeSut();
+    const { sut, user } = makeSut();
 
     const nameInput = sut.getByPlaceholderText("John Doe");
     const emailInput = sut.getByPlaceholderText("example@gmail.com");
@@ -94,14 +103,14 @@ describe("Sign Up Screen", () => {
     const email = faker.internet.email();
     const password = faker.internet.password();
 
-    await userEvent.type(nameInput, name);
-    await userEvent.type(emailInput, email);
-    await userEvent.type(passwordInput, password);
-    await userEvent.type(confirmPasswordInput, password);
+    await user.type(nameInput, name);
+    await user.type(emailInput, email);
+    await user.type(passwordInput, password);
+    await user.type(confirmPasswordInput, password);
 
     const signInButton = sut.getByText("Sign Up");
 
-    await userEvent.press(signInButton);
+    await user.press(signInButton);
 
     expect(signUpMock).toHaveBeenCalledWith({ name, email, password });
   });
