@@ -10,11 +10,19 @@ type Props = TouchableOpacityProps & {
   isLoading?: boolean;
 };
 
-export const Button = ({ children, isLoading, ...props }: Props) => {
+const variantStyles = {
+  default: "items-center justify-center bg-primary py-4 rounded-2xl",
+  disabled: "opacity-50",
+};
+
+export const Button = ({ children, isLoading, disabled, ...props }: Props) => {
   return (
     <TouchableOpacity
-      className="items-center justify-center bg-primary py-4 rounded-2xl"
-      disabled={isLoading}
+      className={`
+        ${variantStyles.default}
+        ${disabled ? variantStyles.disabled : ""}
+        `}
+      disabled={isLoading || disabled}
       {...props}
     >
       {!isLoading ? (

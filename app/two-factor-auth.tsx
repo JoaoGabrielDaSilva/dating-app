@@ -1,5 +1,6 @@
 import {
   Alert,
+  Keyboard,
   Pressable,
   ScrollView,
   Text,
@@ -7,14 +8,25 @@ import {
 } from "react-native";
 import { KeyboardAvoidingView, View } from "react-native";
 import { Button } from "../src/components/button";
-import { VerificationCodeInput } from "../src/components/verification-code-input";
+import {
+  VerificationCodeInput,
+  VerificationCodeInputSchema,
+} from "../src/components/verification-code-input";
 import { useForm } from "react-hook-form";
 import { Header } from "../src/components/header";
 
 export default function TwoFactorAuth() {
-  const { control, handleSubmit, setFocus } = useForm();
+  const {
+    control,
+    handleSubmit,
+    setFocus,
+    formState: { isValid },
+  } = useForm<VerificationCodeInputSchema>();
 
-  const onSubmit = (data) => {
+  console.log(isValid);
+
+  const onSubmit = (data: VerificationCodeInputSchema) => {
+    Keyboard.dismiss();
     const convertedValues = Object.values(data).join("");
 
     Alert.alert(convertedValues);
@@ -23,7 +35,11 @@ export default function TwoFactorAuth() {
   return (
     <KeyboardAvoidingView className="flex-1 bg-white" behavior="padding">
       <Header />
-      <ScrollView contentContainerStyle={{ paddingTop: 48 }} bounces={false}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: 48 }}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-1 bg-white">
           <View>
             <Text className="text-center text-3xl">Verify Code</Text>
@@ -49,6 +65,7 @@ export default function TwoFactorAuth() {
           <Button
             testID="sign-in-button"
             className="m-4 mt-6"
+            disabled={!isValid}
             onPress={handleSubmit(onSubmit)}
           >
             Verify
