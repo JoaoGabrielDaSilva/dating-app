@@ -23,8 +23,6 @@ export default function TwoFactorAuth() {
     formState: { isValid },
   } = useForm<VerificationCodeInputSchema>();
 
-  console.log(isValid);
-
   const onSubmit = (data: VerificationCodeInputSchema) => {
     Keyboard.dismiss();
     const convertedValues = Object.values(data).join("");

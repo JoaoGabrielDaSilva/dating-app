@@ -24,7 +24,10 @@ export const VerificationCodeInput = ({ control, setFocus }: Props) => {
   return (
     <View className="gap-x-4 flex-row justify-center">
       {Array.from({ length: 4 }).map((_, index) => (
-        <View className="bg-gray-200 rounded-lg overflow-hidden justify-center items-center">
+        <View
+          key={index}
+          className="bg-gray-200 rounded-lg overflow-hidden justify-center items-center"
+        >
           <Controller
             name={String(index) as keyof VerificationCodeInputSchema}
             rules={{
@@ -39,6 +42,7 @@ export const VerificationCodeInput = ({ control, setFocus }: Props) => {
               <TextInput
                 className="px-5 py-2 pb-4 text-lg border-2 border-transparent focus:border-primary rounded-lg "
                 ref={ref}
+                aria-label={`code-input-${index}`}
                 textAlign="center"
                 keyboardType="number-pad"
                 caretHidden
